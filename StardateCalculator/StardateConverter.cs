@@ -41,8 +41,9 @@ public class Stardate
     private const double TOS_INCREMENT = 1496.2162d; // Changed from 1496.5725d
     private const double TMP_ROOT = 2224.155d;
     private const double TMP_INCREMENT = 133.07789d;
-    private const double FILMS_ROOT = 2242.08;
-    private const double FILMS_INCREMENT = 188.116;
+    private const double FILMS_ROOT = 2242.08d;
+    private const double FILMS_INCREMENT = 188.116d;
+    private const double TNG_ROOT = 2323d;
 
     private DateTime earthDate;
     private double tosMetric;
@@ -79,10 +80,46 @@ public class Stardate
         }
     }
 
+    public Stardate(double stardate)
+    {
+        if (stardate < 7000)
+        {
+            double realTOS = (stardate / TOS_INCREMENT) + TOS_ROOT;
+            double realTMP = (stardate / TMP_INCREMENT) + TMP_ROOT;
+            Calculate(realTOS > realTMP ? realTOS : realTMP);
+        }
+        else if (stardate < 10000)
+        {
+            double realTMP = (stardate / TMP_INCREMENT) + TMP_ROOT;
+            double realFilms = (stardate / FILMS_INCREMENT) + FILMS_ROOT;
+            Calculate(realTMP < realFilms ? realTMP : realFilms);
+        }
+        else
+        {
+            double realFilms = (stardate / FILMS_INCREMENT) + FILMS_ROOT;
+            // TNG is a little more complicated, since the fractions represents the time of day.
+            double realTNG = ((int)stardate / 1000d) + TNG_ROOT;
+            Calculate(realFilms < realTNG ? realFilms : realTNG);
+        }
+    }
+
     public Stardate(DateTime realDate)
     {
+        Calculate(realDate);
+    }
 
-        double secondsAlongYear = realDate.DayOfYear * 86_400d;
+    public void Calculate(double realDate)
+    {
+        // Convert the year presented as a double into a stardate.
+        var year = (int)realDate;
+        var fraction = realDate - year;
+        var dayOfYear = (int)(fraction * (DateTime.IsLeapYear(year) ? 366 : 365));
+        Calculate(new DateTime(year, 1, 1).AddDays(dayOfYear));
+    }
+    public void Calculate(DateTime realDate)
+    {
+
+        double secondsAlongYear = (realDate.DayOfYear - 1) * 86_400d;
         secondsAlongYear += realDate.Hour * 3_600;
         secondsAlongYear += realDate.Minute * 60;
         secondsAlongYear += realDate.Second;
@@ -113,7 +150,7 @@ public class Stardate
 
         //   T N G   M E T R I C
 
-        double date = (real - 2323d) * 1000d;
+        double date = (int)((real - 2323d) * 1000);
         double time = ((realDate.Hour * 1440d) +
                        (realDate.Minute * 60d) + 
                         realDate.Second + 

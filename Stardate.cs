@@ -81,16 +81,6 @@ public class Stardate
         }
     }
 
-    private DateTime ConvertRealToDateTIme(double realDate)
-    {
-        DateTime dt = new DateTime((int)realDate, 1, 1);
-        int year = (int)realDate;
-        double millisecondsInYear = DateTime.IsLeapYear(year) ? 31_622_400_000 : 31_536_000_000;
-        double millisecondsToAdd = millisecondsInYear * (realDate % 1);
-
-        return dt.AddMilliseconds(millisecondsToAdd);
-    }
-
     public Stardate(DateTime dateTime)
     {
         Calculate(dateTime);
@@ -120,38 +110,30 @@ public class Stardate
         }
     }
 
-    public void Calculate(double realDate)
+    public void Calculate(double dateReal)
     {
-        Calculate(ConvertRealToDateTIme(realDate));
+        // Convert the double to a DateTime.
+        DateTime dt = new DateTime((int)dateReal, 1, 1);
+        Calculate(dateReal, dt.AddMilliseconds((DateTime.IsLeapYear(dt.Year) ? 31_622_400_000 : 31_536_000_000) *
+                                               (dateReal % 1)));
     }
     public void Calculate(DateTime dateTime)
     {
-        double secondsAlongYear = (dateTime.DayOfYear - 1) * 86_400d;
-        secondsAlongYear += dateTime.Hour * 3_600;
-        secondsAlongYear += dateTime.Minute * 60;
-        secondsAlongYear += dateTime.Second;
-        secondsAlongYear += dateTime.Millisecond / 1000d;
-
+        // generate and return a double representing the year and fraction through the year.
+        double secondsAlongYear = ((dateTime.DayOfYear - 1) * 86_400d) +
+                                  (dateTime.Hour * 3_600) +
+                                  (dateTime.Minute * 60) +
+                                  (dateTime.Second) +
+                                  (dateTime.Millisecond / 1000d);
+        Calculate(dateTime.Year + (secondsAlongYear / (DateTime.IsLeapYear(dateTime.Year) ? 31_622_400 : 31_536_000)),
+                  dateTime);
+    }
+    public void Calculate(double dateReal, DateTime dateTime)
+    {
         earthDate = dateTime;
-
-        // real represents the year in terms of the whole number and a fraction.
-        double real = dateTime.Year +
-                         (secondsAlongYear / (DateTime.IsLeapYear(dateTime.Year) ? 31_622_400d : 31_536_000d));
-
-        // TOS Metric
-        tosMetric = real - TOS_ROOT;
-        tosMetric *= TOS_INCREMENT;
-
-        // The Motion Picure Metric
-        tmpMetric = real - TMP_ROOT;
-        tmpMetric *= TMP_INCREMENT;
-
-        // TOS Films Metric
-        filmsMetric = real - FILMS_ROOT;
-        filmsMetric *= FILMS_INCREMENT;
-
-        // TNG Metric
-        tngMetric = real - TNG_ROOT;
-        tngMetric *= TNG_INCREMENT;
+        tosMetric = (dateReal - TOS_ROOT) * TOS_INCREMENT;
+        tmpMetric = (dateReal - TMP_ROOT) * TMP_INCREMENT;
+        filmsMetric = (dateReal - FILMS_ROOT) * FILMS_INCREMENT;
+        tngMetric = (dateReal - TNG_ROOT) * TNG_INCREMENT;
     }
 }

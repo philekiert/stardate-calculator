@@ -44,6 +44,7 @@ public class Stardate
     private const double FILMS_ROOT = 2242.08d;
     private const double FILMS_INCREMENT = 188.116d;
     private const double TNG_ROOT = 2323d;
+    private const double TNG_INCREMENT = 1000d;
 
     private DateTime earthDate;
     private double tosMetric;
@@ -80,8 +81,25 @@ public class Stardate
         }
     }
 
+    private DateTime ConvertRealToDateTIme(double realDate)
+    {
+        DateTime dt = new DateTime((int)realDate, 1, 1);
+        int year = (int)realDate;
+        double millisecondsInYear = DateTime.IsLeapYear(year) ? 31_622_400_000 : 31_536_000_000;
+        double millisecondsToAdd = millisecondsInYear * (realDate % 1);
+
+        return dt.AddMilliseconds(millisecondsToAdd);
+    }
+
+    public Stardate(DateTime dateTime)
+    {
+        Calculate(dateTime);
+    }
     public Stardate(double stardate)
     {
+        // Truncation somewhere in the back and forth of things can lead to stardates of, say, 5000 getting
+        // read back as 4999.99.
+        stardate += .0000001d;
         if (stardate < 7000)
         {
             double realTOS = (stardate / TOS_INCREMENT) + TOS_ROOT;
@@ -97,66 +115,43 @@ public class Stardate
         else
         {
             double realFilms = (stardate / FILMS_INCREMENT) + FILMS_ROOT;
-            // TNG is a little more complicated, since the fractions represents the time of day.
-            double realTNG = ((int)stardate / 1000d) + TNG_ROOT;
+            double realTNG = (stardate / TNG_INCREMENT) + TNG_ROOT;
             Calculate(realFilms < realTNG ? realFilms : realTNG);
         }
     }
 
-    public Stardate(DateTime realDate)
-    {
-        Calculate(realDate);
-    }
-
     public void Calculate(double realDate)
     {
-        // Convert the year presented as a double into a stardate.
-        var year = (int)realDate;
-        var fraction = realDate - year;
-        var dayOfYear = (int)(fraction * (DateTime.IsLeapYear(year) ? 366 : 365));
-        Calculate(new DateTime(year, 1, 1).AddDays(dayOfYear));
+        Calculate(ConvertRealToDateTIme(realDate));
     }
-    public void Calculate(DateTime realDate)
+    public void Calculate(DateTime dateTime)
     {
+        double secondsAlongYear = (dateTime.DayOfYear - 1) * 86_400d;
+        secondsAlongYear += dateTime.Hour * 3_600;
+        secondsAlongYear += dateTime.Minute * 60;
+        secondsAlongYear += dateTime.Second;
+        secondsAlongYear += dateTime.Millisecond / 1000d;
 
-        double secondsAlongYear = (realDate.DayOfYear - 1) * 86_400d;
-        secondsAlongYear += realDate.Hour * 3_600;
-        secondsAlongYear += realDate.Minute * 60;
-        secondsAlongYear += realDate.Second;
-        secondsAlongYear += realDate.Millisecond / 1000d;
+        earthDate = dateTime;
 
         // real represents the year in terms of the whole number and a fraction.
-        double real = realDate.Year +
-                         (secondsAlongYear / (DateTime.IsLeapYear(realDate.Year) ? 31_622_400d : 31_536_000d));
+        double real = dateTime.Year +
+                         (secondsAlongYear / (DateTime.IsLeapYear(dateTime.Year) ? 31_622_400d : 31_536_000d));
 
-
-        //   T O S   M E T R I C
-
+        // TOS Metric
         tosMetric = real - TOS_ROOT;
         tosMetric *= TOS_INCREMENT;
 
-
-        //   T M P   M E T R I C
-
+        // The Motion Picure Metric
         tmpMetric = real - TMP_ROOT;
         tmpMetric *= TMP_INCREMENT;
 
-
-        //   F I L M S   M E T R I C
-
+        // TOS Films Metric
         filmsMetric = real - FILMS_ROOT;
         filmsMetric *= FILMS_INCREMENT;
 
-
-        //   T N G   M E T R I C
-
-        double date = (int)((real - 2323d) * 1000);
-        double time = ((realDate.Hour * 1440d) +
-                       (realDate.Minute * 60d) + 
-                        realDate.Second + 
-                       (realDate.Millisecond / 1000d)) / 86_400d;
-        // If the date segment is negative, we still want the time of day to appear to count up.
-        tngMetric = date < 0 ? date - time : date + time;
-
+        // TNG Metric
+        tngMetric = real - TNG_ROOT;
+        tngMetric *= TNG_INCREMENT;
     }
 }

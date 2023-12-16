@@ -35,6 +35,8 @@ public class Stardate
     9521.0    2292    The Undiscovered country
     9715.0    2293    Generations
 
+    54868.6   23--    868.6 along the year is a few days after First Contact Day.
+
     ************************************************************/
 
     private const double TOS_ROOT = 2265.1893d; // Changed from 2265.8709 for aesthetic reasons
@@ -43,7 +45,7 @@ public class Stardate
     private const double TMP_INCREMENT = 133.07789d;
     private const double FILMS_ROOT = 2242.08d;
     private const double FILMS_INCREMENT = 188.116d;
-    private const double TNG_ROOT = 2323d;
+    private const double TNG_ROOT = 2323.3981d; // __868.6 should be a few days after First Contact day (April 5th).
     private const double TNG_INCREMENT = 1000d;
 
     private DateTime earthDate;

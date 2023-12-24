@@ -1,22 +1,23 @@
-const TOS_ROOT = 2265.1893; // Changed from 2265.8709 for aesthetic reasons
-const TOS_INCREMENT = 1496.2162; // Changed from 1496.5725d
-const TMP_ROOT = 2224.155;
-const TMP_INCREMENT = 133.07789;
-const FILMS_ROOT = 2242.08;
-const FILMS_INCREMENT = 188.116;
-const TNG_ROOT = 2323.3981; // __868.6 should be a few days after First Contact day (April 5th).
-const TNG_INCREMENT = 1000;
-
-function isLeapYear(year) {
-    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-}
-
 class Stardate {
+    #TOS_ROOT = 2265.1893; // Changed from 2265.8709 for aesthetic reasons
+    #TOS_INCREMENT = 1496.2162; // Changed from 1496.5725d
+    #TMP_ROOT = 2224.155;
+    #TMP_INCREMENT = 133.07789;
+    #FILMS_ROOT = 2242.08;
+    #FILMS_INCREMENT = 188.116;
+    #FILMS_INCREMENT = 188.116;
+    #TNG_ROOT = 2323.3981; // __868.6 should be a few days after First Contact day (April 5th).
+    #TNG_INCREMENT = 1000;
+
     #earthDate = null;
     #tosMetric = null;
     #tmpMetric = null;
     #filmsMetric = null;
     #tngMetric = null;
+    
+    #IsLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    }
 
     FormatStardate(stardate) {
         if (stardate instanceof Date) {
@@ -61,31 +62,31 @@ class Stardate {
             stardate += .0000001;
             // Convert the stardate value into a number that represents the date in terms of year and fraction of year.
             if (stardate < 7000) {
-                let realTOS = (stardate / TOS_INCREMENT) + TOS_ROOT;
-                let realTMP = (stardate / TMP_INCREMENT) + TMP_ROOT;
+                let realTOS = (stardate / this.#TOS_INCREMENT) + this.#TOS_ROOT;
+                let realTMP = (stardate / this.#TMP_INCREMENT) + this.#TMP_ROOT;
                 stardate = realTOS > realTMP ? realTOS : realTMP;
             }
             else if (stardate < 10000) {
-                let realTMP = (stardate / TMP_INCREMENT) + TMP_ROOT;
-                let realFilms = (stardate / FILMS_INCREMENT) + FILMS_ROOT;
+                let realTMP = (stardate / this.#TMP_INCREMENT) + this.#TMP_ROOT;
+                let realFilms = (stardate / this.#FILMS_INCREMENT) + this.#FILMS_ROOT;
                 stardate = realTMP < realFilms ? realTMP : realFilms;
             }
             else {
-                let realFilms = (stardate / FILMS_INCREMENT) + FILMS_ROOT;
-                let realTNG = (stardate / TNG_INCREMENT) + TNG_ROOT;
+                let realFilms = (stardate / this.#FILMS_INCREMENT) + this.#FILMS_ROOT;
+                let realTNG = (stardate / this.#TNG_INCREMENT) + this.#TNG_ROOT;
                 stardate = realFilms < realTNG ? realFilms : realTNG;
             }
             // Convert the double to a DateTime.
             let dt = new Date(Math.trunc(stardate), 0, 1);
             dt.setTime(dt.getTime() +
-                       (isLeapYear(dt.getFullYear()) ? 31622400000 : 31536000000) * (stardate % 1));
+                       (this.#IsLeapYear(dt.getFullYear()) ? 31622400000 : 31536000000) * (stardate % 1));
             this.#Apply(stardate, dt);
         }
         else if (stardate instanceof Date) {
             // generate and return a double representing the year and fraction through the year.
             let secondsAlongYear = (stardate - new Date(stardate.getFullYear(), 0, 1)) / 1000;
             this.#Apply(stardate.getFullYear() + (secondsAlongYear /
-                                                 (isLeapYear(stardate.getFullYear()) ? 31622400 : 31536000)),
+                                                 (this.#IsLeapYear(stardate.getFullYear()) ? 31622400 : 31536000)),
                         stardate);
         }
         else {
@@ -97,10 +98,10 @@ class Stardate {
             console.error("Invalid input: stardate must be a number or a Date object.");
         } else {
             this.#earthDate = dateTime;
-            this.#tosMetric = (dateReal - TOS_ROOT) * TOS_INCREMENT;
-            this.#tmpMetric = (dateReal - TMP_ROOT) * TMP_INCREMENT;
-            this.#filmsMetric = (dateReal - FILMS_ROOT) * FILMS_INCREMENT;
-            this.#tngMetric = (dateReal - TNG_ROOT) * TNG_INCREMENT;
+            this.#tosMetric = (dateReal - this.#TOS_ROOT) * this.#TOS_INCREMENT;
+            this.#tmpMetric = (dateReal - this.#TMP_ROOT) * this.#TMP_INCREMENT;
+            this.#filmsMetric = (dateReal - this.#FILMS_ROOT) * this.#FILMS_INCREMENT;
+            this.#tngMetric = (dateReal - this.#TNG_ROOT) * this.#TNG_INCREMENT;
         }
     }
 }

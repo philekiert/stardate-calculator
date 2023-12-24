@@ -18,15 +18,16 @@ class Stardate {
     #filmsMetric = null;
     #tngMetric = null;
 
-    FormatStardate(stardate)
-    {
-        if (stardate instanceof Date)
-        {
+    FormatStardate(stardate) {
+        if (stardate instanceof Date) {
             let str = String(stardate.getDate()).padStart(2, '0')
             str += "/" + String(stardate.getMonth()).padStart(2, '0')
-            str += "/" + String(stardate.getFullYear()).padStart(4, '0')
-            str += " " + String(stardate.getHours()).padStart(4, '0')
-            str += ":" + String(stardate.getMinutes()).padStart(4, '0')
+            if (stardate.getFullYear() >= 0)
+                str += "/" + String(stardate.getFullYear()).padStart(4, '0')
+            else
+                str += "/" + '-' + String(Math.abs(stardate.getFullYear())).padStart(4, '0')
+            str += " " + String(stardate.getHours()).padStart(2, '0')
+            str += ":" + String(stardate.getMinutes()).padStart(2, '0')
             return str;
         }            
         if (typeof(stardate) === 'number')
@@ -40,11 +41,10 @@ class Stardate {
     TMP() { return this.#tmpMetric; }
     Films() { return this.#filmsMetric; }
     TNG() { return this.#tngMetric; }
-    Primary()
-    {
+    Primary(forceStardate) {
         if (this.#earthDate == null)
             return null;
-        if (this.#tosMetric < 0)
+        if (this.#tosMetric < 0 && !forceStardate)
             return this.#earthDate;
         if (this.#tosMetric < 22160) // ~year 2080
             return this.#tosMetric < this.#tmpMetric ? this.#tosMetric : this.#tmpMetric;
@@ -55,26 +55,22 @@ class Stardate {
 
     Calculate(stardate)
     {
-        if (typeof(stardate) === 'number')
-        {
+        if (typeof(stardate) === 'number') {
             // Truncation somewhere in the back and forth of things can lead to stardates of, say, 5000 getting
             // read back as 4999.99.
             stardate += .0000001;
             // Convert the stardate value into a number that represents the date in terms of year and fraction of year.
-            if (stardate < 7000)
-            {
+            if (stardate < 7000) {
                 let realTOS = (stardate / TOS_INCREMENT) + TOS_ROOT;
                 let realTMP = (stardate / TMP_INCREMENT) + TMP_ROOT;
                 stardate = realTOS > realTMP ? realTOS : realTMP;
             }
-            else if (stardate < 10000)
-            {
+            else if (stardate < 10000) {
                 let realTMP = (stardate / TMP_INCREMENT) + TMP_ROOT;
                 let realFilms = (stardate / FILMS_INCREMENT) + FILMS_ROOT;
                 stardate = realTMP < realFilms ? realTMP : realFilms;
             }
-            else
-            {
+            else {
                 let realFilms = (stardate / FILMS_INCREMENT) + FILMS_ROOT;
                 let realTNG = (stardate / TNG_INCREMENT) + TNG_ROOT;
                 stardate = realFilms < realTNG ? realFilms : realTNG;
@@ -85,21 +81,18 @@ class Stardate {
                        (isLeapYear(dt.getFullYear()) ? 31622400000 : 31536000000) * (stardate % 1));
             this.#Apply(stardate, dt);
         }
-        else if (stardate instanceof Date)
-        {
+        else if (stardate instanceof Date) {
             // generate and return a double representing the year and fraction through the year.
             let secondsAlongYear = (stardate - new Date(stardate.getFullYear(), 0, 1)) / 1000;
-            this.#Apply(stardate.Year + (secondsAlongYear /
-                                        (isLeapYear(stardate.getFullYear()) ? 31622400 : 31536000)),
+            this.#Apply(stardate.getFullYear() + (secondsAlongYear /
+                                                 (isLeapYear(stardate.getFullYear()) ? 31622400 : 31536000)),
                         stardate);
         }
         else {
             console.error("Invalid input: stardate must be a number or a Date object.");
         }
- 
     }
-    #Apply(dateReal, dateTime)
-    {
+    #Apply(dateReal, dateTime) {
         if (typeof(dateReal) != 'number' && !(dateTime instanceof Date)) {
             console.error("Invalid input: stardate must be a number or a Date object.");
         } else {

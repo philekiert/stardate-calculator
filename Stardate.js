@@ -5,7 +5,6 @@ class Stardate {
     #TMP_INCREMENT = 133.07789;
     #FILMS_ROOT = 2242.08;
     #FILMS_INCREMENT = 188.116;
-    #FILMS_INCREMENT = 188.116;
     #TNG_ROOT = 2323.3981; // __868.6 should be a few days after First Contact day (April 5th).
     #TNG_INCREMENT = 1000;
 

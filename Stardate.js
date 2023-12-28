@@ -21,7 +21,7 @@ class Stardate {
     FormatStardate(stardate) {
         if (stardate instanceof Date) {
             let str = String(stardate.getDate()).padStart(2, '0')
-            str += "/" + String(stardate.getMonth()).padStart(2, '0')
+            str += "/" + String(stardate.getMonth() + 1).padStart(2, '0')
             if (stardate.getFullYear() >= 0)
                 str += "/" + String(stardate.getFullYear()).padStart(4, '0')
             else

@@ -25,7 +25,7 @@ class Stardate {
             if (stardate.getFullYear() >= 0)
                 str += "/" + String(stardate.getFullYear()).padStart(4, '0')
             else
-                str += "/" + '-' + String(Math.abs(stardate.getFullYear())).padStart(4, '0')
+                str += "/-" + String(Math.abs(stardate.getFullYear())).padStart(4, '0')
             str += " " + String(stardate.getHours()).padStart(2, '0')
             str += ":" + String(stardate.getMinutes()).padStart(2, '0')
             return str;

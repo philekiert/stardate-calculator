@@ -78,14 +78,14 @@ class Stardate {
             // Convert the double to a DateTime.
             let dt = new Date(Date.UTC(Math.trunc(stardate), 0, 1));
             dt.setTime(dt.getTime() +
-                       (this.#IsLeapYear(dt.getFullYear()) ? 31622400000 : 31536000000) * (stardate % 1));
+                       (this.#IsLeapYear(dt.getUTCFullYear()) ? 31622400000 : 31536000000) * (stardate % 1));
             this.#Apply(stardate, dt);
         }
         else if (stardate instanceof Date) {
             // generate and return a double representing the year and fraction through the year.
-            let secondsAlongYear = (stardate - new Date(stardate.getFullYear(), 0, 1)) / 1000;
-            this.#Apply(stardate.getFullYear() + (secondsAlongYear /
-                                                 (this.#IsLeapYear(stardate.getFullYear()) ? 31622400 : 31536000)),
+            let secondsAlongYear = (stardate - new Date(Date.UTC(stardate.getUTCFullYear(), 0, 1))) / 1000;
+            this.#Apply(stardate.getUTCFullYear() + (secondsAlongYear /
+                                                 (this.#IsLeapYear(stardate.getUTCFullYear()) ? 31622400 : 31536000)),
                         stardate);
         }
         else {

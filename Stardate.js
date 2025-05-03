@@ -20,14 +20,14 @@ class Stardate {
 
     FormatStardate(stardate) {
         if (stardate instanceof Date) {
-            let str = String(stardate.getDate()).padStart(2, '0')
-            str += "/" + String(stardate.getMonth() + 1).padStart(2, '0')
-            if (stardate.getFullYear() >= 0)
-                str += "/" + String(stardate.getFullYear()).padStart(4, '0')
+            let str = String(stardate.getUTCDate()).padStart(2, '0')
+            str += "/" + String(stardate.getUTCMonth() + 1).padStart(2, '0')
+            if (stardate.getUTCFullYear() >= 0)
+                str += "/" + String(stardate.getUTCFullYear()).padStart(4, '0')
             else
-                str += "/-" + String(Math.abs(stardate.getFullYear())).padStart(4, '0')
-            str += " " + String(stardate.getHours()).padStart(2, '0')
-            str += ":" + String(stardate.getMinutes()).padStart(2, '0')
+                str += "/" + '-' + String(Math.abs(stardate.getUTCFullYear())).padStart(4, '0')
+            str += " " + String(stardate.getUTCHours()).padStart(2, '0')
+            str += ":" + String(stardate.getUTCMinutes()).padStart(2, '0')
             return str;
         }            
         if (typeof(stardate) === 'number')
@@ -76,7 +76,7 @@ class Stardate {
                 stardate = realFilms < realTNG ? realFilms : realTNG;
             }
             // Convert the double to a DateTime.
-            let dt = new Date(Math.trunc(stardate), 0, 1);
+            let dt = new Date(Date.UTC(Math.trunc(stardate), 0, 1));
             dt.setTime(dt.getTime() +
                        (this.#IsLeapYear(dt.getFullYear()) ? 31622400000 : 31536000000) * (stardate % 1));
             this.#Apply(stardate, dt);

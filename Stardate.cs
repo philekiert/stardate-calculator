@@ -1,12 +1,4 @@
-﻿using Microsoft.VisualBasic;
 using System;
-using System.Drawing;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
-using System.Xaml;
-using System.Xml.Schema;
 
 public class Stardate
 {
@@ -32,7 +24,7 @@ public class Stardate
     8210.0    2285    The Search for Spock
     8390.0    2286    The Voyage Home 
     8454.0    2287    The Final Frontier
-    9521.0    2292    The Undiscovered country
+    9521.0    2292    The Undiscovered Country
     9715.0    2293    Generations
 
     54868.6   23--    868.6 along the year is a few days after First Contact Day.
